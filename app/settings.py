@@ -120,10 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5174", 'http://localhost:5173',
-    'http://127.0.0.1:5173', 'http://127.0.0.1:5174',
-]
+CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='', cast=Csv())
 
 CORS_ALLOW_HEADERS = [
     'content-type',
