@@ -49,6 +49,10 @@ class ChangeUser(generics.UpdateAPIView):
 
         old_username = instance.username  # Сохраняем старое имя пользователя
 
+        if User.objects.filter(username=request.data['username']).exists():
+            logger.warning(f"Пользователь с таким именем уже существует")
+            return Response({'message': 'Пользователь с таким именем уже существует.', 'status': 400},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
@@ -58,6 +62,7 @@ class ChangeUser(generics.UpdateAPIView):
 
         # Если имя пользователя изменилось, обновляем директорию хранения файлов
         if new_username != old_username:
+
             old_storage_path = instance.user_storage_path
             new_storage_path = os.path.join(settings.STORAGE_DIR, new_username)
             instance.user_storage_path = new_storage_path
