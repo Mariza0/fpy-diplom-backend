@@ -189,9 +189,19 @@ class FileDeleteView(APIView):
         logger.debug(f"Delete request for file ID {file_id}")
         try:
             file = CustomFile.objects.get(id=file_id)
+            file_path = file.file_path
             # Проверяем, является ли пользователь владельцем файла или администратором
             if file.user == request.user or request.user.is_admin:
                 file.delete()
+
+                # Удаляем файл из файловой системы
+                if os.path.exists(file_path):
+                    try:
+                        os.remove(file_path)
+                        logger.info(f"Файл {file_path} удален")
+                    except OSError as e:
+                        logger.error(f"Ошибка при удалении файла {file_path}: {e}")
+
                 logger.info(f"File ID {file_id} удален пользователем {request.user.id}")
                 return Response({"message": "File deleted successfully", 'status': 204},
                                 status=status.HTTP_204_NO_CONTENT)
