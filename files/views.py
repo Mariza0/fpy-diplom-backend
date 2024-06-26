@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import uuid
 
 from django.contrib.auth import get_user_model
@@ -279,7 +280,23 @@ class ChangeNameView(APIView):
                 serializer = CustomFileSerializer(file, data=request.data, partial=True)
                 if serializer.is_valid():
                     serializer.save()
+
+                    # Получаем новое имя файла
+                    new_file_name = serializer.validated_data.get('file_name', file.file_name)
+
+                    # Получаем текущий путь к файлу в файловой системе
+                    current_file_path = file.file_path
+
+                    # Переименовываем или перемещаем файл в файловой системе
+                    new_file_path = os.path.join(os.path.dirname(current_file_path), new_file_name)
+                    shutil.move(current_file_path, new_file_path)
+
+                    # Обновляем путь к файлу в модели
+                    file.file_path = new_file_path
+                    file.save(update_fields=['file_path'])
+
                     logger.info(f"Имя файла успешно изменено file ID {file_id} пользователем {request.user.id}")
+
                 return Response({"message": "fileName changed successfully",
                                  'status': 204 }, status=status.HTTP_204_NO_CONTENT)
 
@@ -288,7 +305,7 @@ class ChangeNameView(APIView):
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             logger.warning(f"Неавторизованная попытка пользователем {request.user.id} изменения имени файла {file_id}")
-            return Response({"error": "You do not have permission to delete this file",
+            return Response({"error": "You do not have permission to change this file",
                              'status': 403 },
                             status=status.HTTP_403_FORBIDDEN)
 
