@@ -296,7 +296,7 @@ class ChangeNameView(APIView):
                     file.save(update_fields=['file_path'])
 
                     logger.info(f"Имя файла успешно изменено file ID {file_id} пользователем {request.user.id}")
-
+                    logger.info(f"путь к файлу file ID {file_id}:  {new_file_path}")
                 return Response({"message": "fileName changed successfully",
                                  'status': 204 }, status=status.HTTP_204_NO_CONTENT)
 
