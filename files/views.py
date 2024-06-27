@@ -78,7 +78,9 @@ class FileUploadView(APIView):
             current_time_str = current_time.strftime('%Y-%m-%d %H:%M:%S')
             file_name = current_time_str + "_" + file_obj.name
             logger.info(f"File с таким именем существует. Имя файла изменено на {file_name}")
-            file_new_path = os.path.join(user_storage_path, file_name)
+
+        file_new_path = os.path.join(user_storage_path, file_name)
+
         try:
             # Попытка сохранения файла
             custom_file = CustomFile(
