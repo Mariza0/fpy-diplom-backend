@@ -78,6 +78,7 @@ class FileUploadView(APIView):
             current_time_str = current_time.strftime('%Y-%m-%d %H:%M:%S')
             file_name = current_time_str + "_" + file_obj.name
             logger.info(f"File с таким именем существует. Имя файла изменено на {file_name}")
+            file_new_path = os.path.join(user_storage_path, file_name)
         try:
             # Попытка сохранения файла
             custom_file = CustomFile(
@@ -86,16 +87,16 @@ class FileUploadView(APIView):
                                      user=user,
                                      comment=comment,
                                      #upload_date = upload_date,
-                                     file_path=file_path,
+                                     file_path=file_new_path,
                                      special_link=special_link,
             )
             custom_file.save()
             logger.info(f"File сохранен на сервере: {file_name}")
             # проверить что создан без ошибки и потом
-            with open(file_path, 'wb+') as destination:
+            with open(file_new_path, 'wb+') as destination:
                 for chunk in file_obj.chunks():
                     destination.write(chunk)
-                logger.info(f"File записан на диск по пути: {file_path}")
+                logger.info(f"File записан на диск по пути: {file_new_path}")
         except Exception as e:
             logger.error(f"File загружен с ошибкой: {e}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
