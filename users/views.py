@@ -9,6 +9,8 @@ from rest_framework import status, viewsets, generics, permissions
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from files.models import CustomFile
 from .models import CustomUser
 from .serializers import UsersSerializer, UserUpdateSerializer, UsersListSerializer
 from django.contrib.auth import get_user_model
@@ -79,6 +81,16 @@ class ChangeUser(generics.UpdateAPIView):
                 os.makedirs(new_storage_path, exist_ok=True)
 
             instance.save(update_fields=['user_storage_path'])
+
+            # Обновление file_path для всех файлов пользователя
+            user_files = CustomFile.objects.filter(user=instance)
+            for file in user_files:
+                old_file_path = file.file_path
+                new_file_path = os.path.join(new_storage_path, file.file_name)
+                print(new_file_path,'new_file_path')
+                file.file_path = new_file_path
+                file.save(update_fields=['file_path'])
+                logger.info(f"Обновлен путь файла {file.file_name} на {new_file_path}")
 
         logger.info(f"пользователь {instance.username} был обновлен")
         return Response(serializer.data, status=status.HTTP_200_OK)

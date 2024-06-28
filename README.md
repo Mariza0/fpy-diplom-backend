@@ -1,6 +1,6 @@
 # Приложение My Cloud
 
-### Руководство по разворачиванию приложения на сервере.
+### Deploy приложения на сервере.
 
 1. На сервисе [reg.ru](https://www.reg.ru/vps/) необходимо арендовать виртуальный сервер VPS с ОС Ubuntu.
 2. Настраиваем SSH ключ для безопасного подключения к серверу и для подтверждения своей идентичности.
@@ -23,7 +23,7 @@ ssh root@ip_adress_server
 ```
 adduser admin 
  ```
-где admin это имя нового пользователя и подтверждаем паролем. admin Admin375Yo (Fue69Q1 новый)
+где admin это имя нового пользователя и подтверждаем паролем.
 6. Предоставляем права новосму пользователю: 
 ```
 usermod admin -aG sudo
@@ -82,7 +82,6 @@ admin@cv3888091:~$ psql
 ```
 CREATE DATABASE cloud_project;
 \q
-Exit
 ```
 20. Клонируем проект с github:
 ```
@@ -104,15 +103,11 @@ source env/bin/activate
 ```
 pip install -r requirements.txt
 ```
-25. Переходим в текстовый редактор:
-```
-nano app/settings.py
-```
-26. Создаем файл .env:
+25. Создаем файл .env:
 ```
 nano .env
 ```
-27. Записываем в файле данные для работы приложения:
+26. Записываем в файле данные для работы приложения:
 ```
 SECRET_KEY=8@!rm9a8r+7z=oqyqkz-0inj@3dskfhslf9&2ee^ez&69q9mr1dfku%s+t
 DEBUG=False
@@ -125,11 +120,11 @@ DB_HOST=localhost
 DB_PORT=5432
 ```
 где SECRET_KEY произвольный набор символов. Можно сгенерировать на [сервисе](https://djecrety.ir/).
-28. В активированном виртуальном окружении применяем миграции из проекта: 
+27. В активированном виртуальном окружении применяем миграции из проекта: 
 ```
 python manage.py migrate
 ```
-29. Создаем суперпользователя:
+28. Создаем суперпользователя:
 ```angular2html
 python manage.py createsuperuser
 ```
@@ -253,6 +248,17 @@ sudo systemctl enable gunicorn
 ```angular2html
 sudo systemctl restart nginx
 ```
+Если при запуске сервера будет ошибка 500 и в логах ```sudo tail -n 50 /var/log/nginx/error.log```
+сообщение Permission denied необходимо предоставить 
+доступ nginx к Permission 
+```/home/admin/fpy-diplom-backend/static/react/dist/:```
+```angular2html
+sudo chmod 755 /home/admin
+sudo chown -R admin:www-data /home/admin/fpy-diplom-backend
+sudo systemctl restart nginx
+sudo systemctl restart gunicorn
+```
+
 -------------------------------------------
 деплой react приложения
 ------------------------------------------
